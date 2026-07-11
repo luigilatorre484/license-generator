@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>VocalChain Pro - Generatore Seriali</title>
+<style>
+  body { background:#0d0f14; color:#eee; font-family: -apple-system, sans-serif; padding:40px; }
+  input { width:100%; padding:10px; font-size:16px; margin:8px 0; background:#1a1d24; color:#fff; border:1px solid #333; border-radius:6px; box-sizing:border-box; }
+  button { padding:10px 20px; font-size:16px; background:#2fe0bb; color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
+  #result { margin-top:20px; font-size:22px; font-weight:bold; color:#2fe0bb; letter-spacing:1px; }
+</style>
+</head>
+<body>
+  <h2>VocalChain Pro — Generatore Seriali</h2>
+  <p>Incolla il Machine ID ricevuto dal cliente e genera il seriale corrispondente.</p>
+  <input id="machineId" placeholder="Machine ID del cliente"  <button onclick="generate()">Genera Seriale</button>
+  <div id="result"></div>
+
+<script>
+function djb2(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = (((hash << 5) + hash) + str.charCodeAt(i)) >>> 0;
+    }
+    return hash >>> 0;
+}
+function hex4(value) {
+    return (value & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+}
+function generateSerial(machineID) {
+    const SALT1 = "VCCP_Monster_2026_s1";
+    const SALT2 = "VCCP_Monster_2026_s2";
+    const hash1 = djb2(machineID + SALT1);
+    const hash2 = djb2(String(hash1) + machineID + SALT2);
+    return "VCCP-" + hex4(hash1 >>> 16) + "-" + hex4(hash1) + "-" + hex4(hash2);
+}
+function generate() {
+    const id = document.getElementById('machineId').value.trim();
+    if (!id) { document.getElementById('result').innerText = 'Inserisci un Machine ID valido.'; return; }
+    document.getElementById('result').innerText = generateSerial(id);
+}
+</script>
+</body>
+</html>
